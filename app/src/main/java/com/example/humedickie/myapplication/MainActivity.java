@@ -15,6 +15,8 @@ public class MainActivity extends Activity {
 
     private Button pauseButton;
 
+    private Button resetButton; //I added this
+
     private TextView timerValue;
 
     private long startTime = 0L;
@@ -30,6 +32,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         timerValue = (TextView) findViewById(R.id.timerValue);
+
         startButton = (Button) findViewById(R.id.startButton);
         startButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -37,11 +40,21 @@ public class MainActivity extends Activity {
                 customHandler.postDelayed(updateTimerThread, 0);
             }
         });
+
         pauseButton = (Button) findViewById(R.id.pauseButton);
         pauseButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 timeSwapBuff += timeInMilliseconds;
                 customHandler.removeCallbacks(updateTimerThread);
+            }
+        });
+
+        resetButton = (Button) findViewById(R.id.restartButton);
+        resetButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                timeSwapBuff += timeInMilliseconds;
+                customHandler.removeCallbacks(updateTimerThread);
+                timeInMilliseconds = 0;
             }
         });
     }
@@ -54,8 +67,7 @@ public class MainActivity extends Activity {
             secs = secs % 60;
             int milliseconds = (int) (updatedTime % 1000);
             timerValue.setText("" + mins + ":"
-                    + String.format("%02d", secs) + ":"
-                    + String.format("%03d", milliseconds));
+                    + String.format("%02d", secs));
             customHandler.postDelayed(this, 0);
         }
     };
