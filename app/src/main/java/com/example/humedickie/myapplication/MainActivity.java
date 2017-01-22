@@ -54,7 +54,10 @@ public class MainActivity extends Activity {
             public void onClick(View view) {
                 timeSwapBuff += timeInMilliseconds;
                 customHandler.removeCallbacks(updateTimerThread);
+
+                timeSwapBuff = 0;
                 timeInMilliseconds = 0;
+                timerValue.setText("0:00");
             }
         });
     }
