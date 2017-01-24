@@ -2,7 +2,9 @@
 package com.example.humedickie.myapplication;
 
 import android.app.Activity;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.View;
@@ -27,6 +29,21 @@ public class MainActivity extends Activity {
     long timeSwapBuff = 0L;
     long updatedTime = 0L;
 
+    //I added the members below
+    private MediaPlayer mp = new MediaPlayer();
+    private int tomatoLength = 15;
+    private int shortBreakLength = 5;
+    private int longBreakLength = 10;
+    private int numTomatoes = 0;
+
+    enum State{
+        shortBreak,longBreak,tomato
+    };
+
+    State state = State.tomato;
+
+    int sound = -1;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,7 +54,7 @@ public class MainActivity extends Activity {
         startButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 startTime = SystemClock.uptimeMillis();
-                customHandler.postDelayed(updateTimerThread, 0);
+                customHandler.postDelayed(tomatoThread, 0);
             }
         });
 
@@ -45,7 +62,7 @@ public class MainActivity extends Activity {
         pauseButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 timeSwapBuff += timeInMilliseconds;
-                customHandler.removeCallbacks(updateTimerThread);
+                customHandler.removeCallbacks(tomatoThread);
             }
         });
 
@@ -53,7 +70,7 @@ public class MainActivity extends Activity {
         resetButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 timeSwapBuff += timeInMilliseconds;
-                customHandler.removeCallbacks(updateTimerThread);
+                customHandler.removeCallbacks(tomatoThread);
 
                 timeSwapBuff = 0;
                 timeInMilliseconds = 0;
@@ -61,17 +78,74 @@ public class MainActivity extends Activity {
             }
         });
     }
-    private Runnable updateTimerThread = new Runnable() {
+
+    private void updateTimeDisplay(long millis){
+        int mins = (int)(millis/1000)/60;
+        int secs = (int)(millis/1000)%60;
+        timerValue.setText(mins+":"+secs);
+    }
+
+    private void startTomato(){
+        new CountDownTimer(tomatoLength*1000,1000){
+
+            public void onTick(long millisUntilFinished){
+                updateTimeDisplay(millisUntilFinished);
+            }
+
+            public void onFinish() {
+                if (numTomatoes <= 3) {
+                    state = State.shortBreak;
+                    numTomatoes++;
+                } else {
+                    state = State.longBreak;
+                    numTomatoes = 0;
+                }
+                customHandler.post(tomatoThread);
+            }
+        }.start();
+    }
+
+    private void startShortBreak(){
+        new CountDownTimer(shortBreakLength*1000,1000){
+
+            public void onTick(long millisUntilFinished){
+                updateTimeDisplay(millisUntilFinished);
+            }
+
+            public void onFinish() {
+                customHandler.post(tomatoThread);
+            }
+        }.start();
+    }
+
+    private void startLongBreak(){
+        new CountDownTimer(longBreakLength*1000,1000){
+
+            public void onTick(long millisUntilFinished){
+                updateTimeDisplay(millisUntilFinished);
+            }
+
+            public void onFinish() {
+                customHandler.post(tomatoThread);
+            }
+        }.start();
+    }
+
+    private Runnable tomatoThread = new Runnable() {
         public void run() {
-            timeInMilliseconds = SystemClock.uptimeMillis() - startTime;
-            updatedTime = timeSwapBuff + timeInMilliseconds;
-            int secs = (int) (updatedTime / 1000);
-            int mins = secs / 60;
-            secs = secs % 60;
-            int milliseconds = (int) (updatedTime % 1000);
-            timerValue.setText("" + mins + ":"
-                    + String.format("%02d", secs));
-            customHandler.postDelayed(this, 0);
+            switch(state){
+                default:
+                    break;
+                case tomato:
+                    startTomato();
+                    break;
+                case shortBreak:
+                    startShortBreak();
+                    break;
+                case longBreak:
+                    startLongBreak();
+                    break;
+            }
         }
     };
 }
