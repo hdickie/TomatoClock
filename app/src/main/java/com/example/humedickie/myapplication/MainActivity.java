@@ -1,6 +1,9 @@
 //this code was taken from https://examples.javacodegeeks.com/android/core/os/handler/android-timer-example/
 package com.example.humedickie.myapplication;
 
+//for tomato icon
+// <div>Icons made by <a href="http://www.flaticon.com/authors/roundicons" title="Roundicons">Roundicons</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+
 import android.app.Activity;
 import android.media.MediaPlayer;
 import android.os.Bundle;
