@@ -5,13 +5,17 @@ import android.app.Activity;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
+
+    private final String TAG = "MyApplication";
 
     private Button startButton;
 
@@ -27,10 +31,9 @@ public class MainActivity extends Activity {
 
     long timeInMilliseconds = 0L;
     long timeSwapBuff = 0L;
-    long updatedTime = 0L;
 
     //I added the members below
-    private MediaPlayer mp = new MediaPlayer();
+    private MediaPlayer mp;
     private int tomatoLength = 15;
     private int shortBreakLength = 5;
     private int longBreakLength = 10;
@@ -82,7 +85,12 @@ public class MainActivity extends Activity {
     private void updateTimeDisplay(long millis){
         int mins = (int)(millis/1000)/60;
         int secs = (int)(millis/1000)%60;
-        timerValue.setText(mins+":"+secs);
+
+        if (Integer.toString(secs).length() == 1) { //pad a zero if single digit second
+            timerValue.setText(mins + ":0" + secs);
+        } else {
+            timerValue.setText(mins + ":" + secs);
+        }
     }
 
     private void startTomato(){
@@ -93,13 +101,16 @@ public class MainActivity extends Activity {
             }
 
             public void onFinish() {
+
                 if (numTomatoes <= 3) {
+
                     state = State.shortBreak;
                     numTomatoes++;
                 } else {
                     state = State.longBreak;
                     numTomatoes = 0;
                 }
+                Log.v(TAG,"tomato finished");
                 customHandler.post(tomatoThread);
             }
         }.start();
@@ -113,6 +124,8 @@ public class MainActivity extends Activity {
             }
 
             public void onFinish() {
+                Log.v(TAG,"short break finished");
+                state = State.tomato;
                 customHandler.post(tomatoThread);
             }
         }.start();
@@ -126,6 +139,8 @@ public class MainActivity extends Activity {
             }
 
             public void onFinish() {
+                Log.v(TAG,"long break finished");
+                state = State.tomato;
                 customHandler.post(tomatoThread);
             }
         }.start();
@@ -133,16 +148,47 @@ public class MainActivity extends Activity {
 
     private Runnable tomatoThread = new Runnable() {
         public void run() {
+            Log.v(TAG,"tomatoThread()::run()");
             switch(state){
                 default:
                     break;
                 case tomato:
+                    mp = MediaPlayer.create(MainActivity.this,R.raw.resume);
+                    try{
+                        mp.setDataSource(Environment.getExternalStorageDirectory().getPath() + "/resume.mp3");
+                        mp.prepare();
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                    }
+                    Log.v(TAG,"playing resume sound");
+                    mp.start();
+
                     startTomato();
                     break;
                 case shortBreak:
+                    mp = MediaPlayer.create(MainActivity.this,R.raw.shortbreak);
+                    try{
+                        mp.setDataSource(Environment.getExternalStorageDirectory().getPath() + "/shortbreak.mp3");
+                        mp.prepare();
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                    }
+                    Log.v(TAG,"playing shortbreak sound");
+                    mp.start();
+
                     startShortBreak();
                     break;
                 case longBreak:
+                    mp = MediaPlayer.create(MainActivity.this,R.raw.longbreak);
+                    try{
+                        mp.setDataSource(Environment.getExternalStorageDirectory().getPath() + "/longbreak.mp3");
+                        mp.prepare();
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                    }
+                    Log.v(TAG,"playing longbreak sound");
+                    mp.start();
+
                     startLongBreak();
                     break;
             }
