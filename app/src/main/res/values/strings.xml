@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">TomatoClock</string>
+    <string name="app_name">Tomato Clock</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Waddup bitches</string>
     <string name="timerVal">0:00</string>
